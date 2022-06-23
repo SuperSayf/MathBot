@@ -54,6 +54,9 @@ client.modalCommands = new Collection();
 client.cooldowns = new Collection();
 client.triggers = new Collection();
 
+// MongoDB connection
+require("./mongo.js")();
+
 /**********************************************************************/
 // Registration of Message-Based Legacy Commands.
 
