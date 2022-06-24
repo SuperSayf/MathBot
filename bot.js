@@ -1,10 +1,12 @@
 // Declare constants which will be used throughout the bot.
 
 const fs = require("fs");
-const { Client, Collection, Intents } = require("discord.js");
+const { Client, Collection, Intents, MessageEmbed } = require("discord.js");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const { token, client_id, test_guild_id } = require("./config.json");
+const { leaderboard_channel_id } = require("./config.json");
+const leaderboard = require("./schemas/leaderboard");
 
 /**
  * From v13, specifying the intents is compulsory.
@@ -256,6 +258,71 @@ for (const folder of triggerFolders) {
 	}
 }
 
+// Set the leaderboard channel.
+
+client.on('ready', client => {
+	client.channels.cache.get(leaderboard_channel_id).messages.fetch({ limit: 10 }).then(messages => {
+		if (messages.size > 0 && messages.first().author.id === client.user.id) {
+			(async () => {
+				try {
+					const leaderboardData = await leaderboard.find({});
+
+					if (leaderboardData.length > 0) {
+						// Get the first embed in the channel
+						const message = messages.first();
+						// List all the users in the leaderboard and their respective points.
+						const leaderboardEmbed = new MessageEmbed().setColor(0x4286f4);
+						leaderboardEmbed.setTitle("🏆Leaderboard🏆");
+						// Sort the leaderboard names by points.
+						leaderboardData.sort((a, b) => b.points - a.points);
+						leaderboardEmbed.addFields({ name: "Name", value: leaderboardData.map(user => `${user.name}`).join("\n"), inline: true }, { name: "Points", value: leaderboardData.map(user => `${user.points}`).join("\n"), inline: true });
+
+						message.edit({ embeds: [leaderboardEmbed] });
+					} else {
+						// Get the first embed in the channel
+						const message = messages.first();
+						// List all the users in the leaderboard and their respective points.
+						const leaderboardEmbed = new MessageEmbed().setColor(0x4286f4);
+						leaderboardEmbed.setTitle("🏆Leaderboard🏆");
+						// Sort the leaderboard by points
+						leaderboardEmbed.setDescription("No users have been added to the leaderboard yet.");
+
+						message.edit({ embeds: [leaderboardEmbed] });
+					}
+
+				} catch (error) {
+					console.error(error);
+				}
+			})();
+		} else {
+			(async () => {
+				const leaderboardData = await leaderboard.find({});
+
+				if (leaderboardData.length > 0) {
+					// Create a new message and send it to the leaderboard channel.
+					const leaderboardEmbed = new MessageEmbed().setColor(0x4286f4);
+					leaderboardEmbed.setTitle("🏆Leaderboard🏆");
+					// Sort the leaderboard names by points.
+					leaderboardData.sort((a, b) => b.points - a.points);
+					leaderboardEmbed.addFields({ name: "Name", value: leaderboardData.map(user => `${user.name}`).join("\n"), inline: true }, { name: "Points", value: leaderboardData.map(user => `${user.points}`).join("\n"), inline: true });
+
+					client.channels.cache.get(leaderboard_channel_id).send({ embeds: [leaderboardEmbed] });
+				} else {
+					// Create a new message and send it to the leaderboard channel.
+					const leaderboardEmbed = new MessageEmbed().setColor(0x4286f4);
+					leaderboardEmbed.setTitle("🏆Leaderboard🏆");
+					// Sort the leaderboard by points
+					leaderboardEmbed.setDescription("No users have been added to the leaderboard yet.");
+
+					client.channels.cache.get(leaderboard_channel_id).send({ embeds: [leaderboardEmbed] });
+				}
+			})();
+		}
+	}
+	);
+})
+
 // Login into your client application with bot's token.
 
 client.login(token);
+
