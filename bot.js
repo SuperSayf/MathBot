@@ -1,11 +1,10 @@
 // Declare constants which will be used throughout the bot.
 
 const fs = require("fs");
-const { Client, Collection, Intents, MessageEmbed } = require("discord.js");
+const { Client, Collection, Intents, MessageEmbed, MessageButton, MessageActionRow, MessageComponent } = require("discord.js");
 const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
-const { token, client_id, test_guild_id } = require("./config.json");
-const { leaderboard_channel_id } = require("./config.json");
+const { token, client_id, test_guild_id, leaderboard_channel_id, approvals_channel_id, prefix } = require("./config.json");
 const leaderboard = require("./schemas/leaderboard");
 
 /**
@@ -321,6 +320,79 @@ client.on('ready', client => {
 	}
 	);
 })
+
+function attachIsImage(msgAttach) {
+	var url = msgAttach.url;
+	//True if this url is a png, jpg, jpeg or gif
+	if (url.endsWith(".png") || url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".gif")) {
+		return true;
+	}
+}
+
+// Client on message event
+
+client.on('messageCreate', async (message) => {
+	if (message.author.bot) return;
+	if (message.channel.type === 'dm') return;
+	if (message.content.startsWith(prefix)) return;
+
+	// If the message has an image attachment, then copy the image to the approvals channel
+	if (message.attachments.size > 0 || message.content.endsWith(".png") || message.content.endsWith(".jpg") || message.content.endsWith(".jpeg") || message.content.endsWith(".gif")) {
+		if (message.attachments.every(attachIsImage)) {
+			const approvalEmbed = new MessageEmbed().setColor(0x4286f4);
+			approvalEmbed.setTitle("📷Work Approval📷");
+			if (message.attachments.size > 0) {
+				approvalEmbed.setImage(message.attachments.first().url);
+			} else {
+				approvalEmbed.setImage(message.content);
+			}
+			approvalEmbed.setTimestamp();
+			approvalEmbed.setFooter({ text: message.author.username, iconURL: message.author.avatarURL() });
+
+			// Discord button to approve the image
+
+			const row = new MessageActionRow()
+				.addComponents(
+					new MessageButton()
+						.setStyle("PRIMARY")
+						.setCustomId("Approval_1")
+						.setLabel("pt")
+						.setEmoji("1️⃣"),
+				)
+				.addComponents(
+					new MessageButton()
+						.setStyle("PRIMARY")
+						.setCustomId("Approval_2")
+						.setLabel("pts")
+						.setEmoji("2️⃣"),
+				)
+				.addComponents(
+					new MessageButton()
+						.setStyle("PRIMARY")
+						.setCustomId("Approval_3")
+						.setLabel("pts")
+						.setEmoji("3️⃣"),
+				)
+				.addComponents(
+					new MessageButton()
+						.setStyle("PRIMARY")
+						.setCustomId("Approval_4")
+						.setLabel("pts")
+						.setEmoji("4️⃣"),
+				)
+				.addComponents(
+					new MessageButton()
+						.setStyle("LINK")
+						.setURL(message.url)
+						.setLabel("Context"),
+				)
+
+			client.channels.cache.get(approvals_channel_id).send({ embeds: [approvalEmbed], components: [row] });
+		}
+	}
+}
+);
+
 
 // Login into your client application with bot's token.
 
