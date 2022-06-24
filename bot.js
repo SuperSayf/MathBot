@@ -341,6 +341,7 @@ client.on('messageCreate', async (message) => {
 		if (message.attachments.every(attachIsImage)) {
 			const approvalEmbed = new MessageEmbed().setColor(0x4286f4);
 			approvalEmbed.setTitle("📷Work Approval📷");
+			approvalEmbed.setDescription(`ID **${message.author.id}** has submitted work for approval`);
 			if (message.attachments.size > 0) {
 				approvalEmbed.setImage(message.attachments.first().url);
 			} else {
