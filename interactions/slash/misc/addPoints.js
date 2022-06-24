@@ -27,7 +27,7 @@ module.exports = {
                 .setName("points")
                 .setDescription("The amount of points to add.")
                 .setRequired(true)
-        ),
+        ).setDefaultMemberPermissions(0),
 
     async execute(interaction) {
         /**
