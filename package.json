@@ -26,7 +26,10 @@
     "@discordjs/rest": "^0.5.0",
     "discord-api-types": "^0.33.5",
     "discord.js": "^13.8.0",
-    "mongoose": "^6.4.0"
+    "mongoose": "^6.4.0",
+    "node-wolfram-api": "^1.0.0",
+    "wolfram-alpha-api": "https://products.wolframalpha.com/api/libraries/javascript/wolfram-alpha-api-1.0.0-rc.1.tgz",
+    "wolfram-alpha-node": "^0.0.3"
   },
   "devDependencies": {
     "nodemon": "^1.3.3"
