@@ -25,6 +25,7 @@
     "@discordjs/builders": "^0.15.0",
     "@discordjs/rest": "^0.5.0",
     "discord-api-types": "^0.33.5",
+    "discord-buttons": "^4.0.0-deprecated",
     "discord.js": "^13.8.0",
     "mongoose": "^6.4.0",
     "node-wolfram-api": "^1.0.0",
